@@ -1,3 +1,5 @@
+#BIOMETRIC FINGERPRINT SENSOR WITH SERVO ARM.
+
 # Arduino_Security_System
 
 #Wiring / pin / connectors
@@ -5,8 +7,6 @@
 
 # Get finger_print
 
-
-# Finger_print count down
 
 
 # Get finger_print ID
