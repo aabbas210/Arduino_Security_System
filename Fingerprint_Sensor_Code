@@ -1,4 +1,3 @@
-# Arduino_Security_System
 /* PROJECT ANDRINO SECURITY SYSTEM / FINGERPRINT BY MUHAMMAD AZHAR ABBAS
  * This code scan fingerprints via (OPTICAL SENSOR), locks and unlocks the door via (SOLENOIED), 
  * with an automatic door arm opening & closing mechanism via (SERVO MOTOR).
@@ -6,7 +5,6 @@
  * ADAFRUIT FINGERPRINT LIBRARY.
  */
 // Libaraires Used
-
 #include <Adafruit_Fingerprint.h>
 #include <SoftwareSerial.h>
 #include <LiquidCrystal_I2C.h>
@@ -14,20 +12,19 @@
 #include <Wire.h>
 #include <Servo.h>
 
-
-int angle = 0; // Inital Servo motor Angle at the time of operation.
-int WIRE1 = 8; // WIRE OUTPUT PIN
+Servo servo; // Servo Motor
+int angle = 180; // Inital Servo motor Angle at the time of operation.
 int WIRE2 = 12; // WIRE OUTPUT PIN
 LiquidCrystal_I2C lcd(0x27,20,4); // LCD DISPLAY 0*27 = LCD Address, LCD Lines)
-SoftwareSerial mySerial(1, 2); // Fingerprint sensor wiring. 
-Servo servo; // Servo Motor
+SoftwareSerial mySerial(2, 3); // Fingerprint sensor wiring. 
+
 Adafruit_Fingerprint finger = Adafruit_Fingerprint(&mySerial); //Declaring Fingerprint Sensor used ADAFRUIT FINGERPRINT LIBRARY.
+
 
 void setup()
 {
  servo.attach(9); // PIN 9 for Servo / OUTPUT signals
  servo.write(angle); 
- pinMode(WIRE1, OUTPUT);
  pinMode(WIRE2, OUTPUT);
  Serial.begin(9600); // Serial prints on serial monitor.
  Serial.println("INITIALIZING"); // Serial Initilization
@@ -40,7 +37,7 @@ void setup()
  Serial.println("Please Scan");
  lcd.print("Scan Finger");
  char str[100] = "Scan Finger"; // Print on LCD using loop
- printlcd(str, 0); //LCD Line 1
+ printlcd(str, 0);
 }
 
 
@@ -72,16 +69,17 @@ int getFingerprintIDez() {
     char str1[100] = "Place finger";   // LCD Print through loop
     printlcd(str1, 0);
     char str2[100] = "Again"; 
-    printlcd(str2, 1); //LCD Line 2
-   return -1;
+    printlcd(str2, 1);
+   
+   
+    return -1;
   }
 
-lcd.clear();
+  lcd.clear();
   char str4[100] = "Door Unlocked"; //LCD Print, when finger image recognized
   printlcd(str4, 0);
   Serial.println("Door Unlocked");
   lcd.setCursor(2,1);
-  
   OpenDoor(); // Door Unlock                         
   delay(100);
   
@@ -92,9 +90,11 @@ lcd.clear();
   printlcd(str5, 0);
   char str6[100] = "Again"; // LCD Print
   printlcd(str6, 1);
-  return finger.fingerID; // Loop return 
+  return finger.fingerID; // Loop return
+  
 }
-void printlcd(char *string, int line){ // For LCD 
+
+void printlcd(char *string, int line){ 
     int l, x;
     l = strlen(string); // length of string
     for(x = 0; x<l; x++){ // Using for loop here for LCD prints.
@@ -103,20 +103,22 @@ void printlcd(char *string, int line){ // For LCD
     }
 }
 
-void OpenDoor(){ 
-  digitalWrite(WIRE1, LOW); //Electrical Signals opens Door. 
-  digitalWrite(WIRE2, HIGH); 
-  delay(6000); //Wait Time 6Sec meanwhile 
-  { 
-  for(angle = 0; angle < 90; angle++)  // Servo motor(Mechanical Arm) takes turn from 0 degree
-  {                                     // to 90 degree angle which opens the door
-    servo.write(angle);               
-    delay(5);  // Wait Time < 1 Sec, Adjusted on the Mechanisim needs          
-  } 
-  for(angle = 90; angle > 0; angle--) // Servo motor(Mechanical Arm) takes turn from 90 degree   
-  {                                    // to 0 degree angle which closes the door
+void OpenDoor(){  
+  digitalWrite(WIRE2, HIGH); //Electrical Signals opens Door with high signal priority 
+  delay(6000); // Wait Time 6 Sec meanwhile 
+  
+     for(angle = 180; angle > 0; angle--) // Servo motor(Mechanical Arm) takes turn from 180 degree     
+  {                                    // to 00 degree angle which opens the door
     servo.write(angle);           
-    delay(5);  // Wait Time < 1 Sec, Adjusted on the Mechanisim needs
+    delay(5);  // Wait Time 5 Sec, Adjusted on the door Mechanisim
   } 
- }
+    for(angle = 0; angle < 180; angle++)  // Servo motor(Mechanical Arm) takes turn from 0 degree
+  {                                     // to 180 degree angle which opens the door
+    servo.write(angle);               
+    delay(5);  // Wait Time 5 Sec, Adjusted on the door Mechanisim
+              
+  } 
+  
+  digitalWrite(WIRE2, LOW);
+   
 }
